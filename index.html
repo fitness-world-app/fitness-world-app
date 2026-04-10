@@ -650,28 +650,49 @@ function selPlan(p,el){
   S.plan=p;
 }
 function startJourney(){
-  if(S.plan==='free')showToast('Starting free plan with ads! 📺');
-  else{showToast('Redirecting to Razorpay... 💳');/* loadRazorpay() */}
-  setTimeout(()=>go(7),900);
+  if(S.plan === 'free'){
+    showToast('Starting free plan with ads! 📺');
+    setTimeout(()=>go(7),800);
+  } else {
+    showToast('Redirecting to Razorpay... 💳');
+    loadRazorpay(); // ✅ CALL IT
+  }
 }
 
 // Razorpay integration (uncomment after getting keys from razorpay.com)
 /*
 function loadRazorpay(){
-  const prices={weekly:2900,monthly:9900,yearly:49900}; // in paise
-  const opts={
-    key:'rzp_test_SblCWaew7Tn1Fw
-
-
-', // ← Replace
-    amount:prices[S.plan],
-    currency:'INR',
-    name:'Fitness World',
-    description:S.plan+' subscription',
-    prefill:{name:S.name,contact:S.contact},
-    handler:function(r){showToast('Payment successful! ✓');go(7);}
+  const prices = {
+    weekly: 2900,   // ₹89
+    monthly: 9900,  // ₹299
+    yearly: 49900   // ₹999
   };
-  new Razorpay(opts).open();
+
+  const options = {
+    key: rzp_test_SblCWaew7Tn1Fw", // ⚠️ PUT YOUR REAL KEY
+    amount: prices[S.plan],
+    currency: "INR",
+    name: "Fitness World",
+    description: S.plan + " subscription",
+    prefill: {
+      name: S.name,
+      contact: S.contact
+    },
+
+    handler: function (response) {
+      showToast('Payment successful! ✅');
+      go(7); // ✅ ONLY HERE SUCCESS HAPPENS
+    },
+
+    modal: {
+      ondismiss: function () {
+        showToast('Payment cancelled ❌');
+      }
+    }
+  };
+
+  const rzp = new Razorpay(options);
+  rzp.open();
 }
 */
 
@@ -718,6 +739,6 @@ function showToast(msg){
 
 // Init
 updW(70);
-</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </body>
 </html>
