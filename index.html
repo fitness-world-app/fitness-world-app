@@ -3,483 +3,543 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fitness World — Your AI Fitness Companion</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Fitness World</title>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --dark:#0a0a0f;--dark2:#12121a;--dark3:#1a1a26;
-  --accent:#00e5b0;--accent2:#ff5f6d;--accent3:#ffc837;
-  --blue:#4f8ef7;--purple:#a855f7;
-  --text:#f0f0f8;--muted:rgba(240,240,248,0.55);--muted2:rgba(240,240,248,0.25);
-  --card:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.1);
-  --radius:18px;--radius-sm:12px;
+  --black:#000;--dark:#0a0a0a;--dark2:#111;--dark3:#1a1a1a;
+  --neon:#c8f400;--neon2:#a8d000;--white:#fff;--gray:#888;--gray2:#444;
+  --text:#fff;--muted:rgba(255,255,255,0.55);
 }
-html,body{height:100%;background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
-.app{max-width:430px;margin:0 auto;min-height:100vh;position:relative;background:var(--dark);}
+html,body{height:100%;background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;overflow-x:hidden;}
+.app{max-width:100%;margin:0 auto;min-height:100vh;position:relative;background:var(--black);}
 
-/* ── SCREENS ── */
+/* SCREENS */
 .screen{display:none;flex-direction:column;min-height:100vh;}
 .screen.active{display:flex;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-.screen.active{animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.screen.active > *{animation:fadeIn .3s ease forwards;}
 
-/* ── PROGRESS ── */
-.prog-wrap{padding:20px 24px 0;display:flex;align-items:center;gap:12px;}
-.prog-bar{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--blue));border-radius:2px;transition:width .4s ease;}
-.prog-pct{font-size:12px;color:var(--muted);min-width:32px;text-align:right;font-family:'Syne',sans-serif;}
-.btn-back{background:none;border:1px solid var(--border);color:var(--muted);width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
-.btn-back:hover{border-color:var(--accent);color:var(--accent);}
+/* TOP NAV */
+.top-nav{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;position:relative;z-index:10;}
+.back-link{display:flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;letter-spacing:0.1em;color:var(--white);cursor:pointer;background:none;border:none;text-transform:uppercase;}
+.back-link:hover{color:var(--neon);}
+.step-dots{display:flex;gap:8px;align-items:center;}
+.dot{width:32px;height:3px;background:var(--gray2);border-radius:2px;}
+.dot.done{background:var(--neon);}
+.dot.active{background:var(--neon);width:48px;}
 
-/* ── BUTTONS ── */
-.btn{width:100%;padding:17px;border:none;border-radius:var(--radius);font-size:16px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;letter-spacing:0.01em;}
-.btn-primary{background:var(--accent);color:#0a0a0f;font-weight:500;}
-.btn-primary:hover{opacity:0.88;transform:translateY(-1px);}
-.btn-primary:active{transform:scale(0.98);}
-.btn-primary:disabled{opacity:0.35;pointer-events:none;}
-.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
-.btn-ghost:hover{border-color:rgba(255,255,255,0.3);background:var(--card);}
+/* BUTTONS */
+.btn-neon{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:18px 28px;border:none;background:var(--neon);color:var(--black);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.btn-neon:hover{background:var(--neon2);transform:translateY(-1px);}
+.btn-neon:active{transform:scale(0.99);}
+.btn-neon:disabled{background:var(--gray2);color:var(--gray);pointer-events:none;}
+.btn-neon svg{width:20px;height:20px;}
+.btn-outline{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px 28px;border:1px solid var(--gray2);background:transparent;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.btn-outline:hover{border-color:var(--neon);color:var(--neon);}
 
-/* ── SCREEN 1: WELCOME ── */
-#s1{position:relative;overflow:hidden;justify-content:flex-end;}
-.s1-bg{position:absolute;inset:0;z-index:0;}
-.blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.35;}
-.b1{width:400px;height:400px;background:var(--accent);top:-120px;right:-120px;}
-.b2{width:300px;height:300px;background:var(--blue);bottom:-80px;left:-80px;}
-.b3{width:200px;height:200px;background:var(--accent2);top:40%;left:30%;}
-.s1-content{position:relative;z-index:1;padding:48px 28px 40px;display:flex;flex-direction:column;gap:0;}
-.s1-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,229,176,0.12);border:1px solid rgba(0,229,176,0.3);border-radius:30px;padding:6px 14px;font-size:12px;color:var(--accent);margin-bottom:24px;width:fit-content;font-family:'Syne',sans-serif;}
-.s1-title{font-family:'Syne',sans-serif;font-size:46px;font-weight:800;line-height:1.05;margin-bottom:16px;letter-spacing:-0.02em;}
-.s1-title span{color:var(--accent);}
-.s1-sub{font-size:16px;color:var(--muted);line-height:1.65;margin-bottom:36px;}
-.s1-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:36px;}
-.s1-stat{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 10px;text-align:center;backdrop-filter:blur(10px);}
-.s1-stat .sv{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--accent);}
-.s1-stat .sl{font-size:11px;color:var(--muted);margin-top:2px;}
-.s1-btns{display:flex;flex-direction:column;gap:12px;}
+/* STEP LABEL */
+.step-label{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.15em;color:var(--neon);text-transform:uppercase;margin-bottom:8px;}
 
-/* ── SCREEN 2: GENDER ── */
-.s-pad{flex:1;padding:24px 24px 36px;display:flex;flex-direction:column;}
-.s-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;margin-bottom:8px;line-height:1.2;}
-.s-sub{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:28px;}
-.gender-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:auto;}
-.g-card{border:1.5px solid var(--border);border-radius:22px;padding:28px 16px 22px;text-align:center;cursor:pointer;transition:all .25s;background:var(--card);position:relative;overflow:hidden;}
-.g-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(0,229,176,0.08),transparent 70%);opacity:0;transition:opacity .3s;}
-.g-card:hover::before,.g-card.sel::before{opacity:1;}
-.g-card:hover{border-color:rgba(0,229,176,0.4);transform:translateY(-2px);}
-.g-card.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 8px 32px rgba(0,229,176,0.15);}
-.g-card.wide{grid-column:1/-1;}
-.g-icon{font-size:52px;margin-bottom:14px;display:block;}
-.g-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:600;}
-.g-sub{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.4;}
-.mt-a{margin-top:auto;padding-top:28px;}
+/* ══ SCREEN 1: WELCOME ══ */
+#s1{position:relative;overflow:hidden;}
+.s1-hero{position:absolute;inset:0;z-index:0;}
+.s1-hero-img{width:100%;height:100%;object-fit:cover;opacity:0.35;filter:grayscale(30%);}
+.s1-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(0,0,0,0.95) 45%,rgba(0,0,0,0.3));}
+.s1-content{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;justify-content:center;padding:60px 64px;max-width:680px;}
+.s1-tag{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.2em;color:var(--neon);text-transform:uppercase;margin-bottom:20px;}
+.s1-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(56px,8vw,96px);font-weight:900;line-height:0.92;letter-spacing:-0.01em;text-transform:uppercase;margin-bottom:24px;}
+.s1-title .hl{color:var(--neon);}
+.s1-desc{font-size:17px;color:var(--muted);line-height:1.7;margin-bottom:36px;max-width:380px;}
+.s1-features{display:flex;gap:12px;margin-bottom:40px;flex-wrap:wrap;}
+.feat-chip{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--gray2);background:rgba(255,255,255,0.04);}
+.feat-chip .fc-icon{font-size:16px;}
+.feat-chip .fc-text{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--white);}
+.feat-chip .fc-sub{font-size:11px;color:var(--gray);margin-top:1px;}
+.s1-btns{display:flex;flex-direction:column;gap:12px;max-width:320px;}
+.s1-note{font-size:11px;color:var(--gray);margin-top:12px;letter-spacing:0.05em;text-transform:uppercase;}
 
-/* ── SCREEN 3: WEIGHT ── */
-.unit-row{display:flex;background:rgba(255,255,255,0.06);border-radius:var(--radius-sm);padding:4px;gap:4px;margin-bottom:28px;}
-.u-btn{flex:1;padding:11px;border:none;border-radius:9px;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;background:transparent;color:var(--muted);}
-.u-btn.on{background:var(--accent);color:#0a0a0f;font-weight:500;}
-.w-display{text-align:center;padding:24px 0 20px;}
-.w-num{font-family:'Syne',sans-serif;font-size:80px;font-weight:800;color:var(--accent);line-height:1;letter-spacing:-0.04em;}
-.w-unit{font-size:20px;color:var(--muted);font-family:'Syne',sans-serif;}
-.track-wrap{padding:12px 0 8px;position:relative;cursor:pointer;user-select:none;}
-.track{width:100%;height:6px;background:var(--border);border-radius:3px;position:relative;}
-.track-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--blue));border-radius:3px;}
-.thumb{position:absolute;top:50%;width:30px;height:30px;background:var(--accent);border:3px solid var(--dark);border-radius:50%;transform:translate(-50%,-50%);cursor:grab;box-shadow:0 0 0 8px rgba(0,229,176,0.18);transition:box-shadow .2s;}
-.thumb:active{cursor:grabbing;box-shadow:0 0 0 16px rgba(0,229,176,0.1);}
-.range-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted2);margin-top:6px;}
-.bmi-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;margin-top:20px;}
-.bmi-l{font-size:13px;color:var(--muted);}
-.bmi-v{font-family:'Syne',sans-serif;font-size:16px;font-weight:600;color:var(--accent3);}
+/* ══ SCREEN 2: GENDER ══ */
+.gender-content{flex:1;display:flex;flex-direction:column;padding:0 32px 40px;}
+.gender-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;flex:1;margin:24px 0;}
+.g-card{position:relative;overflow:hidden;cursor:pointer;min-height:420px;background:var(--dark2);}
+.g-card-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(100%);opacity:0.5;transition:all .4s;}
+.g-card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.9) 30%,rgba(0,0,0,0.2));}
+.g-card-content{position:absolute;bottom:0;left:0;right:0;padding:24px;}
+.g-card-icon{font-size:24px;margin-bottom:8px;color:var(--neon);}
+.g-card-name{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;letter-spacing:0.05em;text-transform:uppercase;}
+.g-card-sub{font-size:12px;color:rgba(255,255,255,0.6);margin-top:4px;letter-spacing:0.05em;}
+.g-card:hover .g-card-img{filter:grayscale(0%);opacity:0.7;}
+.g-card.sel{outline:3px solid var(--neon);outline-offset:-3px;}
+.g-card.sel .g-card-img{filter:grayscale(0%);opacity:0.65;}
+.g-card.sel .g-card-name{color:var(--neon);}
+.g-sel-mark{position:absolute;top:16px;right:16px;width:28px;height:28px;border:2px solid var(--neon);border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--neon);opacity:0;transition:opacity .2s;}
+.g-card.sel .g-sel-mark{opacity:1;}
 
-/* ── SCREEN 4: BODY TYPE ── */
-.body-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:auto;}
-.b-card{border:1.5px solid var(--border);border-radius:18px;padding:20px 14px;text-align:center;cursor:pointer;transition:all .25s;background:var(--card);}
-.b-card:hover{border-color:rgba(0,229,176,0.4);transform:translateY(-2px);}
-.b-card.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
-.b-card.full{grid-column:1/-1;}
-.b-icon{font-size:38px;margin-bottom:10px;}
-.b-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;}
-.b-desc{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4;}
+/* ══ SCREEN 3: WEIGHT ══ */
+.weight-content{flex:1;display:flex;flex-direction:column;padding:0 32px 40px;justify-content:center;max-width:700px;margin:0 auto;width:100%;}
+.weight-box{border:1px solid var(--gray2);padding:40px;margin:24px 0;background:var(--dark2);}
+.w-display{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:32px;}
+.w-scale-icon{font-size:28px;color:var(--neon);}
+.w-num{font-family:'Barlow Condensed',sans-serif;font-size:96px;font-weight:900;color:var(--neon);line-height:1;letter-spacing:-0.03em;}
+.w-unit-lbl{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--white);align-self:flex-end;padding-bottom:12px;letter-spacing:0.05em;text-transform:uppercase;}
+.unit-toggle{display:flex;gap:8px;justify-content:center;margin-bottom:28px;}
+.u-btn{padding:10px 28px;border:1px solid var(--gray2);background:transparent;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.u-btn.on{background:var(--neon);color:var(--black);border-color:var(--neon);}
+.w-slider{width:100%;-webkit-appearance:none;appearance:none;height:4px;background:var(--gray2);outline:none;cursor:pointer;margin-bottom:8px;}
+.w-slider::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;background:var(--neon);cursor:grab;border:3px solid var(--black);}
+.w-slider::-moz-range-thumb{width:24px;height:24px;background:var(--neon);cursor:grab;border:3px solid var(--black);border-radius:0;}
+.slider-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--gray);margin-bottom:24px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.05em;text-transform:uppercase;}
+.adj-btns{display:flex;gap:6px;justify-content:center;}
+.adj-btn{padding:10px 16px;border:1px solid var(--gray2);background:transparent;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;min-width:52px;}
+.adj-btn:hover{border-color:var(--neon);color:var(--neon);}
+.bmi-strip{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(200,244,0,0.06);border:1px solid rgba(200,244,0,0.2);margin-top:16px;}
+.bmi-lbl{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray);}
+.bmi-val{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:var(--neon);letter-spacing:0.05em;}
 
-/* ── SCREEN 5: AUTH ── */
-.auth-tabs{display:flex;background:rgba(255,255,255,0.05);border-radius:var(--radius-sm);padding:4px;gap:4px;margin-bottom:24px;}
-.a-tab{flex:1;padding:11px;border:none;border-radius:9px;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;background:transparent;color:var(--muted);}
-.a-tab.on{background:var(--accent);color:#0a0a0f;font-weight:500;}
-.ct-row{display:flex;background:rgba(255,255,255,0.04);border-radius:10px;padding:3px;gap:3px;margin-bottom:16px;}
-.ct{flex:1;padding:9px;border:none;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;background:transparent;color:var(--muted);transition:all .2s;}
-.ct.on{background:rgba(255,255,255,0.1);color:var(--text);}
-.ig{margin-bottom:16px;}
-.il{font-size:13px;color:var(--muted);margin-bottom:7px;display:block;}
-.inp{width:100%;padding:15px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);background:rgba(255,255,255,0.04);color:var(--text);font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;}
-.inp:focus{border-color:var(--accent);}
-.inp::placeholder{color:var(--muted2);}
-.otp-row{display:flex;gap:10px;justify-content:center;margin:24px 0 16px;}
-.ob{width:52px;height:64px;border:1.5px solid var(--border);border-radius:14px;background:rgba(255,255,255,0.04);color:var(--text);font-family:'Syne',sans-serif;font-size:26px;font-weight:700;text-align:center;outline:none;transition:border-color .2s;}
-.ob:focus{border-color:var(--accent);}
-.otp-hint{text-align:center;font-size:13px;color:var(--muted);margin-bottom:8px;}
-.resend{background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;}
-.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--muted2);font-size:13px;}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+/* ══ SCREEN 4: BODY TYPE ══ */
+.body-content{flex:1;display:flex;flex-direction:column;padding:0 32px 40px;}
+.body-sub{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:24px;max-width:500px;}
+.body-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-bottom:24px;}
+.b-card{border:1px solid var(--gray2);padding:24px 16px;cursor:pointer;transition:all .2s;background:var(--dark2);text-align:left;}
+.b-card:hover{border-color:rgba(200,244,0,0.4);background:var(--dark3);}
+.b-card.sel{border-color:var(--neon);background:rgba(200,244,0,0.06);}
+.b-sel-circle{width:22px;height:22px;border:2px solid var(--gray2);border-radius:50%;margin-bottom:20px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.b-card.sel .b-sel-circle{border-color:var(--neon);background:var(--neon);}
+.b-sel-dot{width:8px;height:8px;background:var(--black);border-radius:50%;}
+.b-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:6px;}
+.b-card.sel .b-name{color:var(--neon);}
+.b-desc{font-size:12px;color:var(--gray);line-height:1.5;}
+/* child/women body types (fewer items) */
+.body-cards.cols3{grid-template-columns:repeat(3,1fr);}
+.body-cards.cols4{grid-template-columns:repeat(4,1fr);}
 
-/* ── SCREEN 6: SUBSCRIPTION ── */
-.plan-list{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}
-.p-card{border:1.5px solid var(--border);border-radius:20px;padding:20px;cursor:pointer;transition:all .25s;background:var(--card);position:relative;}
-.p-card:hover{border-color:rgba(255,255,255,0.25);}
-.p-card.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 8px 24px rgba(0,229,176,0.1);}
-.p-card.hot{border-color:var(--accent3);}
-.p-card.hot.sel{border-color:var(--accent3);box-shadow:0 0 0 1px var(--accent3),0 8px 24px rgba(255,200,55,0.12);}
-.hot-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--accent3);color:#0a0a0f;font-size:11px;font-weight:600;font-family:'Syne',sans-serif;padding:4px 16px;border-radius:20px;white-space:nowrap;}
-.p-top{display:flex;align-items:center;gap:14px;}
-.p-radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;transition:all .2s;display:flex;align-items:center;justify-content:center;}
-.p-card.sel .p-radio{border-color:var(--accent);background:var(--accent);}
-.p-card.hot.sel .p-radio{border-color:var(--accent3);background:var(--accent3);}
-.p-radio-dot{width:8px;height:8px;border-radius:50%;background:#0a0a0f;}
-.p-info{flex:1;}
-.p-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:600;}
-.p-save{font-size:11px;color:var(--accent3);margin-top:2px;}
-.p-price{text-align:right;}
-.p-amt{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--accent);}
-.p-per{font-size:11px;color:var(--muted);}
-.p-feats{margin-top:14px;padding-left:34px;display:flex;flex-direction:column;gap:6px;}
-.pf{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;}
-.pf-y{color:var(--accent);font-size:13px;}
-.pf-n{color:var(--muted2);font-size:13px;}
-.ads-card{border:1.5px dashed var(--border);border-radius:20px;padding:18px 20px;cursor:pointer;transition:all .2s;margin-bottom:12px;}
-.ads-card:hover{background:var(--card);}
-.ads-card.sel{border-color:rgba(255,255,255,0.3);border-style:solid;background:var(--card);}
-.secure{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;font-size:12px;color:var(--muted2);}
+/* ══ SCREEN 5: AUTH ══ */
+.auth-content{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px 40px;}
+.auth-box{width:100%;max-width:520px;border:1px solid var(--gray2);background:var(--dark2);padding:40px;}
+.auth-toggle{display:grid;grid-template-columns:1fr 1fr;margin-bottom:32px;border:1px solid var(--gray2);}
+.a-tab{padding:14px;border:none;background:transparent;color:var(--gray);font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.a-tab.on{background:var(--neon);color:var(--black);}
+.ct-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px;}
+.ct-btn{padding:12px;border:1px solid var(--gray2);background:transparent;color:var(--gray);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.ct-btn.on{border-color:var(--neon);color:var(--neon);}
+.field{margin-bottom:20px;}
+.field-lbl{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--gray);margin-bottom:8px;display:block;}
+.field-inp{width:100%;padding:0 0 12px;border:none;border-bottom:1px solid var(--gray2);background:transparent;color:var(--white);font-size:16px;font-family:'Barlow',sans-serif;outline:none;transition:border-color .2s;}
+.field-inp:focus{border-color:var(--neon);}
+.field-inp::placeholder{color:var(--gray2);}
+.otp-row{display:flex;gap:8px;justify-content:center;margin:24px 0;}
+.ob{width:52px;height:60px;border:1px solid var(--gray2);background:var(--dark3);color:var(--white);font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;text-align:center;outline:none;transition:border-color .2s;}
+.ob:focus{border-color:var(--neon);}
+.otp-hint{font-size:13px;color:var(--muted);text-align:center;margin-bottom:8px;line-height:1.5;}
+.resend-btn{background:none;border:none;color:var(--neon);font-size:13px;cursor:pointer;font-family:'Barlow',sans-serif;text-align:center;display:block;width:100%;margin-top:12px;}
+.terms-note{font-size:11px;color:var(--gray);text-align:center;margin-top:16px;line-height:1.6;letter-spacing:0.03em;}
+.terms-note span{color:var(--neon);cursor:pointer;}
 
-/* ── SCREEN 7: SUCCESS ── */
-#s7{justify-content:center;align-items:center;text-align:center;padding:40px 28px;}
-.tick{width:90px;height:90px;border-radius:50%;background:rgba(0,229,176,0.12);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto 28px;font-size:40px;}
-.s7-title{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;margin-bottom:12px;}
-.s7-sub{font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:32px;}
-.summary-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;width:100%;text-align:left;margin-bottom:32px;}
-.summary-card .sc-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;}
-.summary-card .sc-row:last-child{border-bottom:none;}
-.sc-label{color:var(--muted);min-width:80px;font-size:13px;}
-.sc-val{color:var(--text);font-weight:500;}
+/* ══ SCREEN 6: PLANS ══ */
+.plans-content{flex:1;display:flex;flex-direction:column;padding:0 32px 40px;}
+.plans-sub{font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+.plan-list{display:flex;flex-direction:column;gap:2px;margin-bottom:24px;}
+.p-card{display:flex;align-items:flex-start;gap:20px;padding:22px 24px;border:1px solid var(--gray2);background:var(--dark2);cursor:pointer;transition:all .2s;position:relative;}
+.p-card:hover{border-color:rgba(200,244,0,0.3);}
+.p-card.sel{border-color:var(--neon);background:rgba(200,244,0,0.04);}
+.p-radio{width:22px;height:22px;border:2px solid var(--gray2);border-radius:50%;flex-shrink:0;margin-top:3px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.p-card.sel .p-radio{border-color:var(--neon);background:var(--neon);}
+.p-radio-dot{width:8px;height:8px;background:var(--black);border-radius:50%;}
+.p-body{flex:1;}
+.p-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;}
+.p-name{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;}
+.p-card.sel .p-name{color:var(--neon);}
+.p-badge{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;background:var(--neon);color:var(--black);padding:3px 10px;}
+.p-price-wrap{text-align:right;}
+.p-price{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:var(--neon);line-height:1;}
+.p-period{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.08em;}
+.p-save{font-size:11px;color:var(--neon);margin-top:2px;font-weight:500;}
+.p-feats{display:flex;flex-wrap:wrap;gap:6px 16px;}
+.pf{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.pf-y{color:var(--neon);font-size:12px;}
+.pf-n{color:var(--gray2);font-size:12px;}
+.secure-row{display:flex;align-items:center;gap:8px;justify-content:center;font-size:12px;color:var(--gray);margin-top:16px;letter-spacing:0.05em;text-transform:uppercase;}
 
-/* ── TOAST ── */
-.toast{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--accent);color:#0a0a0f;padding:13px 28px;border-radius:30px;font-size:14px;font-weight:500;font-family:'Syne',sans-serif;z-index:9999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap;}
-.toast.show{transform:translateX(-50%) translateY(0);}
+/* ══ SCREEN 7: SUCCESS ══ */
+#s7{justify-content:center;align-items:center;padding:60px 32px;text-align:center;}
+.success-icon{font-size:64px;margin-bottom:24px;}
+.success-title{font-family:'Barlow Condensed',sans-serif;font-size:56px;font-weight:900;text-transform:uppercase;letter-spacing:-0.01em;line-height:1;margin-bottom:8px;}
+.success-title .hl{color:var(--neon);}
+.success-sub{font-size:16px;color:var(--muted);line-height:1.6;margin-bottom:36px;max-width:480px;}
+.sum-box{border:1px solid var(--gray2);padding:28px;width:100%;max-width:480px;margin-bottom:32px;background:var(--dark2);text-align:left;}
+.sum-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray2);font-size:14px;}
+.sum-row:last-child{border-bottom:none;}
+.sum-lbl{color:var(--gray);font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;}
+.sum-val{color:var(--white);font-weight:500;}
+.sum-val.neon{color:var(--neon);}
 
-/* ── DASHBOARD ── */
+/* ══ SCREEN 8: DASHBOARD ══ */
 #s8{flex-direction:column;}
-.dash-header{padding:20px 24px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
-.dash-logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--accent);}
-.dash-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--blue));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#0a0a0f;cursor:pointer;}
-.dash-scroll{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:20px;}
-.dash-greeting .dg-name{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;}
-.dash-greeting .dg-sub{font-size:14px;color:var(--muted);margin-top:4px;}
-.stats-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.stat-c{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 10px;text-align:center;}
-.stat-c .sv{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--accent);}
-.stat-c .sl{font-size:11px;color:var(--muted);margin-top:3px;}
-.section-hdr{display:flex;align-items:center;justify-content:space-between;}
-.sec-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:600;}
-.sec-link{font-size:12px;color:var(--accent);cursor:pointer;background:none;border:none;}
-.workout-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all .2s;}
-.workout-item:hover{border-color:rgba(255,255,255,0.2);}
-.wi-thumb{width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
-.wi-info .wn{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;}
-.wi-info .wm{font-size:12px;color:var(--muted);margin-top:3px;}
-.wi-tag{margin-left:auto;font-size:11px;padding:4px 10px;border-radius:20px;font-family:'Syne',sans-serif;flex-shrink:0;}
-.ai-banner{background:linear-gradient(135deg,rgba(0,229,176,0.12),rgba(79,142,247,0.12));border:1px solid rgba(0,229,176,0.25);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all .2s;}
-.ai-banner:hover{border-color:rgba(0,229,176,0.4);}
-.ai-banner .ab-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;color:var(--accent);}
-.ai-banner .ab-sub{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.5;}
-.nav-bar{display:flex;border-top:1px solid var(--border);background:var(--dark2);}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:12px 4px 10px;gap:4px;cursor:pointer;border:none;background:none;}
-.nav-btn .ni{font-size:20px;}
-.nav-btn .nl{font-size:10px;color:var(--muted);}
-.nav-btn.on .nl{color:var(--accent);font-weight:500;}
+.d-header{padding:16px 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--gray2);}
+.d-logo{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;letter-spacing:0.08em;text-transform:uppercase;color:var(--neon);}
+.d-av{width:38px;height:38px;background:var(--neon);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:900;color:var(--black);cursor:pointer;letter-spacing:0.05em;}
+.d-scroll{flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:20px;}
+.d-greet-name{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;text-transform:uppercase;letter-spacing:0.02em;}
+.d-greet-sub{font-size:14px;color:var(--muted);margin-top:4px;}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.stat-box{padding:16px;background:var(--dark2);border:1px solid var(--gray2);text-align:center;}
+.stat-box .sv{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:var(--neon);}
+.stat-box .sl{font-size:11px;color:var(--gray);margin-top:3px;letter-spacing:0.08em;text-transform:uppercase;font-family:'Barlow Condensed',sans-serif;}
+.section-ttl{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;}
+.d-ai-banner{padding:20px;background:rgba(200,244,0,0.07);border:1px solid rgba(200,244,0,0.3);cursor:pointer;transition:all .2s;}
+.d-ai-banner:hover{background:rgba(200,244,0,0.12);}
+.d-ai-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--neon);margin-bottom:4px;}
+.d-ai-sub{font-size:13px;color:var(--muted);line-height:1.5;}
+.wo-item{display:flex;align-items:center;gap:16px;padding:16px;border:1px solid var(--gray2);background:var(--dark2);cursor:pointer;transition:all .2s;margin-bottom:2px;}
+.wo-item:hover{border-color:rgba(200,244,0,0.3);}
+.wo-thumb{width:52px;height:52px;background:var(--dark3);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.wo-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;}
+.wo-meta{font-size:12px;color:var(--gray);margin-top:2px;}
+.wo-tag{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:5px 12px;flex-shrink:0;}
+.tag-today{background:rgba(200,244,0,0.15);color:var(--neon);}
+.tag-later{background:var(--dark3);color:var(--gray);}
+.d-nav{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--gray2);}
+.d-nav-btn{display:flex;flex-direction:column;align-items:center;padding:14px 4px 12px;gap:4px;cursor:pointer;border:none;background:none;border-right:1px solid var(--gray2);}
+.d-nav-btn:last-child{border-right:none;}
+.d-nav-btn .ni{font-size:18px;}
+.d-nav-btn .nl{font-size:9px;color:var(--gray);letter-spacing:0.08em;text-transform:uppercase;font-family:'Barlow Condensed',sans-serif;font-weight:700;}
+.d-nav-btn.on .nl{color:var(--neon);}
 
-/* ── PLAN LOCKED ── */
-.lock-overlay{position:absolute;inset:0;background:rgba(10,10,15,0.7);border-radius:inherit;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
-.lock-pill{background:var(--dark3);border:1px solid var(--border);border-radius:30px;padding:6px 14px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+/* PAYMENT OVERLAY */
+.pay-ov{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+.pay-ov.show{display:flex;}
+.pay-spin{width:44px;height:44px;border:3px solid var(--gray2);border-top-color:var(--neon);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pay-ov p{font-family:'Barlow Condensed',sans-serif;font-size:16px;letter-spacing:0.1em;text-transform:uppercase;color:var(--white);}
+
+/* TOAST */
+.toast{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--neon);color:var(--black);padding:14px 32px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;z-index:99999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap;max-width:90vw;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.err{background:var(--white);color:#c00;}
+
+@media(max-width:768px){
+  .s1-content{padding:40px 24px;}
+  .s1-title{font-size:52px;}
+  .gender-cards{grid-template-columns:1fr;gap:2px;}
+  .g-card{min-height:160px;}
+  .body-cards{grid-template-columns:1fr 1fr;}
+  .body-cards.cols3,.body-cards.cols4,.body-cards.cols5{grid-template-columns:1fr 1fr;}
+  .top-nav{padding:16px 20px;}
+  .gender-content,.body-content,.plans-content,.weight-content,.auth-content{padding-left:20px;padding-right:20px;}
+  .auth-box{padding:24px 20px;}
+}
 </style>
 </head>
 <body>
 <div class="app">
 <div class="toast" id="toast"></div>
+<div class="pay-ov" id="pay-ov"><div class="pay-spin"></div><p>Opening Razorpay...</p></div>
 
-<!-- ══════════════════════════════════════
-     SCREEN 1 — WELCOME
-══════════════════════════════════════ -->
+<!-- ══ S1: WELCOME ══ -->
 <div class="screen active" id="s1">
-  <div class="s1-bg">
-    <div class="blob b1"></div>
-    <div class="blob b2"></div>
-    <div class="blob b3"></div>
+  <div class="s1-hero">
+    <img class="s1-hero-img" src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&auto=format&fit=crop&q=80" alt="gym">
+    <div class="s1-overlay"></div>
   </div>
   <div class="s1-content">
-    <div class="s1-badge">✦ AI-Powered Fitness</div>
-    <div class="s1-title">Welcome to<br><span>Fitness World</span></div>
-    <div class="s1-sub">Your complete fitness companion for the whole family — workouts, diet, progress & AI coaching all in one place.</div>
-    <div class="s1-stats">
-      <div class="s1-stat"><div class="sv">50K+</div><div class="sl">Members</div></div>
-      <div class="s1-stat"><div class="sv">200+</div><div class="sl">Workouts</div></div>
-      <div class="s1-stat"><div class="sv">4.9★</div><div class="sl">Rated</div></div>
+    <div class="s1-tag">Transform your life</div>
+    <div class="s1-title">Welcome to<br><span class="hl">Fitness</span><br>World</div>
+    <div class="s1-desc">Your AI-powered fitness companion for men, women & children. Build strength, eat right, transform your body.</div>
+    <div class="s1-features">
+      <div class="feat-chip"><div class="fc-icon">🏋️</div><div><div class="fc-text">Workouts</div><div class="fc-sub">AI-powered routines</div></div></div>
+      <div class="feat-chip"><div class="fc-icon">🥗</div><div><div class="fc-text">Diet</div><div class="fc-sub">Personalised plans</div></div></div>
+      <div class="feat-chip"><div class="fc-icon">🤖</div><div><div class="fc-text">AI Coach</div><div class="fc-sub">24/7 guidance</div></div></div>
+      <div class="feat-chip"><div class="fc-icon">📈</div><div><div class="fc-text">Progress</div><div class="fc-sub">Track your gains</div></div></div>
     </div>
     <div class="s1-btns">
-      <button class="btn btn-primary" onclick="go(2)">Get Started — It's Free</button>
-      <button class="btn btn-ghost" onclick="go(5,'login')">Already have an account</button>
+      <button class="btn-neon" onclick="go(2)">Get Started <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7 5l5 5-5 5"/></svg></button>
+      <button class="btn-outline" onclick="go(5,'login')">Already have an account</button>
     </div>
+    <div class="s1-note">For all ages · Free to start</div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN 2 — GENDER
-══════════════════════════════════════ -->
+<!-- ══ S2: GENDER ══ -->
 <div class="screen" id="s2">
-  <div class="prog-wrap"><button class="btn-back" onclick="go(1)">←</button><div class="prog-bar"><div class="prog-fill" style="width:16%"></div></div><span class="prog-pct">16%</span></div>
-  <div class="s-pad">
-    <div class="s-title">Who are you?</div>
-    <div class="s-sub">We personalise every workout, diet plan and AI recommendation based on your profile.</div>
-    <div class="gender-grid">
-      <div class="g-card" onclick="selGender('men',this)">
-        <span class="g-icon">💪</span>
-        <div class="g-name">Men</div>
-        <div class="g-sub">Strength, muscle & performance</div>
-      </div>
-      <div class="g-card" onclick="selGender('women',this)">
-        <span class="g-icon">🧘‍♀️</span>
-        <div class="g-name">Women</div>
-        <div class="g-sub">Wellness, yoga & balance</div>
-      </div>
-      <div class="g-card wide" onclick="selGender('child',this)">
-        <span class="g-icon">⚡</span>
-        <div class="g-name">Child</div>
-        <div class="g-sub">Ages 6–15 · Fun, active & healthy habits</div>
-      </div>
-    </div>
-    <div class="mt-a">
-      <button class="btn btn-primary" id="g-next" disabled onclick="go(3)">Continue</button>
-    </div>
+  <div class="top-nav">
+    <button class="back-link" onclick="go(1)">← Back</button>
+    <div class="step-dots" id="dots2"></div>
   </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     SCREEN 3 — WEIGHT
-══════════════════════════════════════ -->
-<div class="screen" id="s3">
-  <div class="prog-wrap"><button class="btn-back" onclick="go(2)">←</button><div class="prog-bar"><div class="prog-fill" style="width:32%"></div></div><span class="prog-pct">32%</span></div>
-  <div class="s-pad">
-    <div class="s-title">Your weight</div>
-    <div class="s-sub">Helps us calculate your BMI and set the right intensity for your workouts.</div>
-    <div class="unit-row">
-      <button class="u-btn on" id="u-kg" onclick="setUnit('kg')">Kilograms (kg)</button>
-      <button class="u-btn" id="u-lb" onclick="setUnit('lb')">Pounds (lb)</button>
-    </div>
-    <div class="w-display">
-      <div class="w-num" id="wnum">70</div>
-      <div class="w-unit" id="wunit">kg</div>
-    </div>
-    <div class="track-wrap" id="tw" onmousedown="dragStart(event)" ontouchstart="dragStart(event)">
-      <div class="track" id="track">
-        <div class="track-fill" id="tfill" style="width:40%"></div>
-        <div class="thumb" id="thumb" style="left:40%"></div>
-      </div>
-    </div>
-    <div class="range-row"><span id="r-min">30 kg</span><span id="r-max">200 kg</span></div>
-    <div class="bmi-box">
-      <div><div class="bmi-l">BMI estimate</div><div style="font-size:11px;color:var(--muted2);margin-top:2px;">Based on avg height 170cm</div></div>
-      <div class="bmi-v" id="bmi-v">22.4 · Normal</div>
-    </div>
-    <div class="mt-a" style="padding-top:24px;">
-      <button class="btn btn-primary" onclick="go(4)">Continue</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     SCREEN 4 — BODY TYPE
-══════════════════════════════════════ -->
-<div class="screen" id="s4">
-  <div class="prog-wrap"><button class="btn-back" onclick="go(3)">←</button><div class="prog-bar"><div class="prog-fill" style="width:48%"></div></div><span class="prog-pct">48%</span></div>
-  <div class="s-pad">
-    <div class="s-title" id="bt-title">Your goal body</div>
-    <div class="s-sub">Choose the physique or fitness goal you want to achieve.</div>
-    <div class="body-grid" id="body-grid"></div>
-    <div class="mt-a">
-      <button class="btn btn-primary" id="bt-next" disabled onclick="go(5,'signup')">Continue</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     SCREEN 5 — AUTH (dynamic)
-══════════════════════════════════════ -->
-<div class="screen" id="s5">
-  <div class="prog-wrap" id="s5-prog"><button class="btn-back" onclick="go(4)">←</button><div class="prog-bar"><div class="prog-fill" style="width:64%"></div></div><span class="prog-pct">64%</span></div>
-  <div class="s-pad" id="auth-body"></div>
-</div>
-
-<!-- ══════════════════════════════════════
-     SCREEN 6 — SUBSCRIPTION
-══════════════════════════════════════ -->
-<div class="screen" id="s6">
-  <div class="prog-wrap"><button class="btn-back" onclick="go(5,'password-done')">←</button><div class="prog-bar"><div class="prog-fill" style="width:80%"></div></div><span class="prog-pct">80%</span></div>
-  <div class="s-pad">
-    <div class="s-title">Pick your plan</div>
-    <div class="s-sub">Less than a cup of coffee a week. Cancel anytime.</div>
-    <div class="plan-list">
-      <div class="ads-card sel" id="pc-free" onclick="selPlan('free',this)">
-        <div style="display:flex;align-items:center;gap:14px;">
-          <div class="p-radio sel" id="pr-free"><div class="p-radio-dot"></div></div>
-          <div>
-            <div class="p-name" style="font-family:'Syne',sans-serif;font-size:16px;font-weight:600;">Continue with Ads</div>
-            <div style="font-size:12px;color:var(--muted);margin-top:3px;">Free forever · Access 30% of features</div>
-          </div>
+  <div class="gender-content">
+    <div class="step-label">Step 1 of 4</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(36px,5vw,52px);font-weight:900;line-height:1;text-transform:uppercase;margin-bottom:4px;">Select your</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(36px,5vw,52px);font-weight:900;line-height:1;text-transform:uppercase;color:var(--neon);margin-bottom:0;">Gender</div>
+    <div class="gender-cards">
+      <div class="g-card" onclick="selG('men',this)">
+        <img class="g-card-img" src="https://images.unsplash.com/photo-1534367507873-d2d7e24c797f?w=600&auto=format&fit=crop&q=80" alt="male">
+        <div class="g-card-overlay"></div>
+        <div class="g-sel-mark"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="g-card-content">
+          <div class="g-card-icon">👤</div>
+          <div class="g-card-name">Male</div>
+          <div class="g-card-sub">Strength & performance</div>
         </div>
-        <div style="margin-top:12px;padding-left:34px;display:flex;flex-direction:column;gap:5px;">
-          <div class="pf"><span class="pf-y">✓</span> 50+ basic workouts</div>
-          <div class="pf"><span class="pf-y">✓</span> Basic diet tips</div>
-          <div class="pf"><span class="pf-n">✗</span> AI coach locked</div>
-          <div class="pf"><span class="pf-n">✗</span> Progress analytics locked</div>
+      </div>
+      <div class="g-card" onclick="selG('women',this)">
+        <img class="g-card-img" src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&auto=format&fit=crop&q=80" alt="female">
+        <div class="g-card-overlay"></div>
+        <div class="g-sel-mark"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="g-card-content">
+          <div class="g-card-icon">👤</div>
+          <div class="g-card-name">Female</div>
+          <div class="g-card-sub">Wellness & balance</div>
+        </div>
+      </div>
+      <div class="g-card" onclick="selG('child',this)">
+        <img class="g-card-img" src="https://images.unsplash.com/photo-1517649763962-0c623066013b?w=600&auto=format&fit=crop&q=80" alt="child">
+        <div class="g-card-overlay"></div>
+        <div class="g-sel-mark"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="g-card-content">
+          <div class="g-card-icon">👤</div>
+          <div class="g-card-name">Child</div>
+          <div class="g-card-sub">Ages 6–15 · Fun & active</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-neon" id="g-next" disabled onclick="go(3)">Continue <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M7 5l5 5-5 5"/></svg></button>
+  </div>
+</div>
+
+<!-- ══ S3: WEIGHT ══ -->
+<div class="screen" id="s3">
+  <div class="top-nav">
+    <button class="back-link" onclick="go(2)">← Back</button>
+    <div class="step-dots" id="dots3"></div>
+  </div>
+  <div class="weight-content">
+    <div class="step-label">Step 2 of 4</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(36px,5vw,52px);font-weight:900;line-height:1;text-transform:uppercase;margin-bottom:4px;">What's your</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(36px,5vw,52px);font-weight:900;line-height:1;text-transform:uppercase;color:var(--neon);">Weight?</div>
+    <div class="weight-box">
+      <div class="w-display">
+        <div class="w-scale-icon">⚖️</div>
+        <div class="w-num" id="wnum">70</div>
+        <div class="w-unit-lbl" id="wunit">KG</div>
+      </div>
+      <div class="unit-toggle">
+        <button class="u-btn on" id="u-kg" onclick="setUnit('kg')">KG</button>
+        <button class="u-btn" id="u-lb" onclick="setUnit('lb')">LBS</button>
+      </div>
+      <input type="range" class="w-slider" id="wslider" min="30" max="200" value="70" oninput="updW(+this.value)">
+      <div class="slider-labels"><span id="r-min">20 kg</span><span id="r-max">200 kg</span></div>
+      <div class="adj-btns">
+        <button class="adj-btn" onclick="adjW(-10)">-10</button>
+        <button class="adj-btn" onclick="adjW(-5)">-5</button>
+        <button class="adj-btn" onclick="adjW(-1)">-1</button>
+        <button class="adj-btn" onclick="adjW(1)">+1</button>
+        <button class="adj-btn" onclick="adjW(5)">+5</button>
+        <button class="adj-btn" onclick="adjW(10)">+10</button>
+      </div>
+      <div class="bmi-strip">
+        <div class="bmi-lbl">BMI Estimate</div>
+        <div class="bmi-val" id="bmi-v">22.4 · Normal</div>
+      </div>
+    </div>
+    <button class="btn-neon" onclick="go(4)">Continue <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M7 5l5 5-5 5"/></svg></button>
+  </div>
+</div>
+
+<!-- ══ S4: BODY TYPE ══ -->
+<div class="screen" id="s4">
+  <div class="top-nav">
+    <button class="back-link" onclick="go(3)">← Back</button>
+    <div class="step-dots" id="dots4"></div>
+  </div>
+  <div class="body-content">
+    <div class="step-label">Step 3 of 4</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(32px,5vw,48px);font-weight:900;line-height:1;text-transform:uppercase;margin-bottom:4px;">Your Target</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(32px,5vw,48px);font-weight:900;line-height:1;text-transform:uppercase;color:var(--neon);margin-bottom:12px;">Body Type</div>
+    <div class="body-sub" id="body-sub">Choose the physique you want to achieve. Our AI will personalise your workouts and diet accordingly.</div>
+    <div class="body-cards" id="body-grid"></div>
+    <button class="btn-neon" id="bt-next" disabled onclick="go(5,'signup')">Continue <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M7 5l5 5-5 5"/></svg></button>
+  </div>
+</div>
+
+<!-- ══ S5: AUTH ══ -->
+<div class="screen" id="s5">
+  <div class="top-nav">
+    <button class="back-link" id="s5-back" onclick="go(4)">← Back</button>
+    <div class="step-dots" id="dots5"></div>
+  </div>
+  <div class="auth-content">
+    <div style="width:100%;max-width:520px;margin-bottom:20px;">
+      <div class="step-label">Step 4 of 4</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(32px,5vw,48px);font-weight:900;line-height:1;text-transform:uppercase;" id="auth-heading">Create your</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(32px,5vw,48px);font-weight:900;line-height:1;text-transform:uppercase;color:var(--neon);" id="auth-heading2">Account</div>
+    </div>
+    <div class="auth-box" id="auth-body"></div>
+  </div>
+</div>
+
+<!-- ══ S6: PLANS ══ -->
+<div class="screen" id="s6">
+  <div class="top-nav">
+    <button class="back-link" onclick="go(5,'back')">← Back</button>
+    <div class="step-dots" id="dots6"></div>
+  </div>
+  <div class="plans-content">
+    <div class="step-label">Almost there</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(32px,5vw,48px);font-weight:900;line-height:1;text-transform:uppercase;margin-bottom:4px;">Choose your</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(32px,5vw,48px);font-weight:900;line-height:1;text-transform:uppercase;color:var(--neon);margin-bottom:8px;">Plan</div>
+    <div class="plans-sub">Less than a cup of chai per week. Cancel anytime. All paid plans unlock 100% of the app.</div>
+    <div class="plan-list">
+      <div class="p-card sel" id="pc-free" onclick="selPlan('free',this)">
+        <div class="p-radio sel" id="pr-free"><div class="p-radio-dot"></div></div>
+        <div class="p-body">
+          <div class="p-head"><div class="p-name">Continue with Ads</div><div class="p-price-wrap"><div class="p-price" style="font-size:20px;">Free</div><div class="p-period">Forever</div></div></div>
+          <div class="p-feats">
+            <div class="pf"><span class="pf-y">✓</span> 50+ basic workouts</div>
+            <div class="pf"><span class="pf-n">✗</span> AI Coach locked</div>
+            <div class="pf"><span class="pf-n">✗</span> 30% access only</div>
+          </div>
         </div>
       </div>
       <div class="p-card" id="pc-weekly" onclick="selPlan('weekly',this)">
-        <div class="p-top">
-          <div class="p-radio" id="pr-weekly"></div>
-          <div class="p-info"><div class="p-name">Weekly</div><div class="p-save">Try risk-free · 7 days</div></div>
-          <div class="p-price"><div class="p-amt">₹29</div><div class="p-per">per week</div></div>
-        </div>
-        <div class="p-feats">
-          <div class="pf"><span class="pf-y">✓</span> Full app — 100% access</div>
-          <div class="pf"><span class="pf-y">✓</span> AI personal coach</div>
-          <div class="pf"><span class="pf-y">✓</span> No ads</div>
+        <div class="p-radio" id="pr-weekly"></div>
+        <div class="p-body">
+          <div class="p-head"><div class="p-name">Weekly</div><div class="p-price-wrap"><div class="p-price">₹29</div><div class="p-period">per week</div><div class="p-save">Try risk-free</div></div></div>
+          <div class="p-feats">
+            <div class="pf"><span class="pf-y">✓</span> 100% full access</div>
+            <div class="pf"><span class="pf-y">✓</span> AI Personal Coach</div>
+            <div class="pf"><span class="pf-y">✓</span> No ads</div>
+          </div>
         </div>
       </div>
-      <div class="p-card hot" id="pc-monthly" onclick="selPlan('monthly',this)">
-        <div class="hot-badge">⭐ Most Popular</div>
-        <div class="p-top">
-          <div class="p-radio" id="pr-monthly"></div>
-          <div class="p-info"><div class="p-name">Monthly</div><div class="p-save">Save 40% vs weekly</div></div>
-          <div class="p-price"><div class="p-amt">₹99</div><div class="p-per">per month</div></div>
-        </div>
-        <div class="p-feats">
-          <div class="pf"><span class="pf-y">✓</span> Everything in Weekly</div>
-          <div class="pf"><span class="pf-y">✓</span> AI meal plans & diet tracker</div>
-          <div class="pf"><span class="pf-y">✓</span> Progress analytics</div>
+      <div class="p-card" id="pc-monthly" onclick="selPlan('monthly',this)" style="border-color:rgba(200,244,0,0.3);">
+        <div class="p-radio" id="pr-monthly"></div>
+        <div class="p-body">
+          <div class="p-head">
+            <div><div class="p-name">Monthly</div><div style="margin-top:4px;"><span class="p-badge">Most Popular</span></div></div>
+            <div class="p-price-wrap"><div class="p-price">₹99</div><div class="p-period">per month</div><div class="p-save">Save 40%</div></div>
+          </div>
+          <div class="p-feats">
+            <div class="pf"><span class="pf-y">✓</span> Everything in Weekly</div>
+            <div class="pf"><span class="pf-y">✓</span> AI Meal Plans</div>
+            <div class="pf"><span class="pf-y">✓</span> Progress Analytics</div>
+          </div>
         </div>
       </div>
       <div class="p-card" id="pc-yearly" onclick="selPlan('yearly',this)">
-        <div class="p-top">
-          <div class="p-radio" id="pr-yearly"></div>
-          <div class="p-info"><div class="p-name">Yearly</div><div class="p-save">Best value · Save 70%</div></div>
-          <div class="p-price"><div class="p-amt">₹499</div><div class="p-per">per year</div></div>
-        </div>
-        <div class="p-feats">
-          <div class="pf"><span class="pf-y">✓</span> Everything in Monthly</div>
-          <div class="pf"><span class="pf-y">✓</span> Family profiles (3 users)</div>
-          <div class="pf"><span class="pf-y">✓</span> Video workout library</div>
-          <div class="pf"><span class="pf-y">✓</span> Trainer marketplace</div>
+        <div class="p-radio" id="pr-yearly"></div>
+        <div class="p-body">
+          <div class="p-head"><div class="p-name">Yearly</div><div class="p-price-wrap"><div class="p-price">₹499</div><div class="p-period">per year</div><div class="p-save">Best value · Save 70%</div></div></div>
+          <div class="p-feats">
+            <div class="pf"><span class="pf-y">✓</span> Everything in Monthly</div>
+            <div class="pf"><span class="pf-y">✓</span> Family (3 profiles)</div>
+            <div class="pf"><span class="pf-y">✓</span> Video Library + Trainers</div>
+          </div>
         </div>
       </div>
     </div>
-    <button class="btn btn-primary" onclick="startJourney()">Start My Journey →</button>
-    <div class="secure"><span>🔒</span><span>Payments by Razorpay · Cancel anytime</span></div>
+    <button class="btn-neon" id="pay-btn" onclick="handlePayment()">Start My Journey <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M7 5l5 5-5 5"/></svg></button>
+    <div class="secure-row">🔒 Secured by Razorpay · Cancel anytime</div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN 7 — SUCCESS
-══════════════════════════════════════ -->
+<!-- ══ S7: SUCCESS ══ -->
 <div class="screen" id="s7">
-  <div class="tick">🎉</div>
-  <div class="s7-title">You're in, <span id="s7-name" style="color:var(--accent)">champ</span>!</div>
-  <div class="s7-sub">Welcome to Fitness World. Your personalised plan is ready. Let's build a stronger, healthier you — starting right now.</div>
-  <div class="summary-card" id="s7-summary"></div>
-  <button class="btn btn-primary" onclick="go(8)" style="width:100%;">Enter Fitness World →</button>
+  <div class="success-icon">🎉</div>
+  <div class="success-title">You're in,<br><span class="hl" id="s7-name">Champ</span>!</div>
+  <div class="success-sub">Welcome to Fitness World. Your personalised plan is ready. Let's build the best version of you — starting today.</div>
+  <div class="sum-box" id="s7-sum"></div>
+  <button class="btn-neon" onclick="go(8)" style="max-width:320px;">Enter Fitness World <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M7 5l5 5-5 5"/></svg></button>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN 8 — DASHBOARD
-══════════════════════════════════════ -->
+<!-- ══ S8: DASHBOARD ══ -->
 <div class="screen" id="s8">
-  <div class="dash-header">
-    <div class="dash-logo">Fitness World</div>
-    <div class="dash-avatar" id="d-av">FW</div>
+  <div class="d-header">
+    <div class="d-logo">Fitness World</div>
+    <div class="d-av" id="d-av">FW</div>
   </div>
-  <div class="dash-scroll">
-    <div class="dash-greeting">
-      <div class="dg-name" id="d-greet">Good morning! 👋</div>
-      <div class="dg-sub" id="d-sub">Ready for today's session?</div>
-    </div>
-    <div class="stats-3">
-      <div class="stat-c"><div class="sv">6,240</div><div class="sl">Steps</div></div>
-      <div class="stat-c"><div class="sv">1,480</div><div class="sl">Calories</div></div>
-      <div class="stat-c"><div class="sv">42m</div><div class="sl">Active</div></div>
-    </div>
-    <div class="ai-banner" onclick="showToast('AI Coach coming in next update! 🤖')">
-      <div class="ab-title">✦ Your AI Coach is ready</div>
-      <div class="ab-sub" id="d-ai-msg">Tap to get your personalised workout and meal plan for today.</div>
+  <div class="d-scroll">
+    <div><div class="d-greet-name" id="d-greet">Good morning 👋</div><div class="d-greet-sub" id="d-sub">Ready to crush it today?</div></div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="sv">6,240</div><div class="sl">Steps</div></div>
+      <div class="stat-box"><div class="sv">1,480</div><div class="sl">Calories</div></div>
+      <div class="stat-box"><div class="sv">42m</div><div class="sl">Active</div></div>
     </div>
     <div>
-      <div class="section-hdr" style="margin-bottom:12px;">
-        <span class="sec-title">Today's workouts</span>
-        <button class="sec-link">See all</button>
+      <div class="section-ttl">AI Coach</div>
+      <div class="d-ai-banner" onclick="toast('AI Coach launching soon! 🤖')">
+        <div class="d-ai-title">✦ Your AI Coach is ready</div>
+        <div class="d-ai-sub" id="d-ai">Tap to get your personalised workout and meal plan for today.</div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:10px;" id="d-workouts"></div>
     </div>
     <div>
-      <div class="section-hdr" style="margin-bottom:12px;">
-        <span class="sec-title">Nutrition today</span>
-        <button class="sec-link">Log meal</button>
-      </div>
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;">
-        <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:10px;"><span>Calories consumed</span><span style="color:var(--text);font-weight:500;">1,480 / 2,000 kcal</span></div>
-        <div style="height:6px;background:var(--border);border-radius:3px;"><div style="width:74%;height:100%;background:linear-gradient(90deg,var(--accent),var(--blue));border-radius:3px;"></div></div>
-        <div style="display:flex;gap:16px;margin-top:14px;">
-          <div style="flex:1;text-align:center;"><div style="font-size:12px;color:var(--muted);">Protein</div><div style="font-size:15px;font-weight:500;color:var(--blue);margin-top:3px;">82g</div></div>
-          <div style="flex:1;text-align:center;"><div style="font-size:12px;color:var(--muted);">Carbs</div><div style="font-size:15px;font-weight:500;color:var(--accent3);margin-top:3px;">180g</div></div>
-          <div style="flex:1;text-align:center;"><div style="font-size:12px;color:var(--muted);">Fat</div><div style="font-size:15px;font-weight:500;color:var(--accent2);margin-top:3px;">44g</div></div>
+      <div class="section-ttl">Today's Workouts</div>
+      <div id="d-workouts"></div>
+    </div>
+    <div>
+      <div class="section-ttl">Nutrition</div>
+      <div style="padding:16px;border:1px solid var(--gray2);background:var(--dark2);">
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--gray);margin-bottom:10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;"><span>Calories</span><span style="color:var(--neon);">1,480 / 2,000 kcal</span></div>
+        <div style="height:4px;background:var(--gray2);"><div style="width:74%;height:100%;background:var(--neon);"></div></div>
+        <div style="display:flex;gap:16px;margin-top:16px;">
+          <div style="flex:1;text-align:center;"><div style="font-size:11px;color:var(--gray);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.1em;text-transform:uppercase;">Protein</div><div style="font-size:18px;font-weight:700;color:var(--neon);font-family:'Barlow Condensed',sans-serif;margin-top:4px;">82g</div></div>
+          <div style="flex:1;text-align:center;"><div style="font-size:11px;color:var(--gray);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.1em;text-transform:uppercase;">Carbs</div><div style="font-size:18px;font-weight:700;color:var(--white);font-family:'Barlow Condensed',sans-serif;margin-top:4px;">180g</div></div>
+          <div style="flex:1;text-align:center;"><div style="font-size:11px;color:var(--gray);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.1em;text-transform:uppercase;">Fat</div><div style="font-size:18px;font-weight:700;color:var(--gray);font-family:'Barlow Condensed',sans-serif;margin-top:4px;">44g</div></div>
         </div>
       </div>
     </div>
   </div>
-  <div class="nav-bar">
-    <button class="nav-btn on"><span class="ni">🏠</span><span class="nl">Home</span></button>
-    <button class="nav-btn"><span class="ni">🤖</span><span class="nl">AI Coach</span></button>
-    <button class="nav-btn"><span class="ni">🥗</span><span class="nl">Diet</span></button>
-    <button class="nav-btn"><span class="ni">📈</span><span class="nl">Progress</span></button>
-    <button class="nav-btn"><span class="ni">👤</span><span class="nl">Profile</span></button>
+  <div class="d-nav">
+    <button class="d-nav-btn on"><span class="ni">🏠</span><span class="nl">Home</span></button>
+    <button class="d-nav-btn"><span class="ni">🤖</span><span class="nl">AI Coach</span></button>
+    <button class="d-nav-btn"><span class="ni">🥗</span><span class="nl">Diet</span></button>
+    <button class="d-nav-btn"><span class="ni">📈</span><span class="nl">Progress</span></button>
+    <button class="d-nav-btn"><span class="ni">👤</span><span class="nl">Profile</span></button>
   </div>
 </div>
 
 <script>
-// ── STATE ──
-const S={gender:'',weight:70,unit:'kg',bodyType:'',name:'',contact:'',contactType:'email',plan:'free',authMode:'signup'};
-let wMin=30,wMax=200,dragging=false;
+// ════════════════════════════
+// ✅ YOUR RAZORPAY KEY — REPLACE THIS
+const RAZORPAY_KEY = 'rzp_live_Sc2jgvdqDyOh1B';
+// ════════════════════════════
 
-// ── NAVIGATION ──
+const S={gender:'',weight:70,unit:'kg',bodyType:'',name:'',contact:'',contactType:'email',plan:'free',payId:''};
+let wMin=30,wMax=200;
+
+function buildDots(screen,total,current){
+  const el=document.getElementById('dots'+screen);
+  if(!el)return;
+  el.innerHTML=[...Array(total)].map((_,i)=>`<div class="dot${i+1<current?' done':i+1===current?' active':''}"></div>`).join('');
+}
+
 function go(n,extra){
-  document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('s'+n).classList.add('active');
   window.scrollTo(0,0);
+  buildDots(2,4,1); buildDots(3,4,2); buildDots(4,4,3); buildDots(5,4,4);
   if(n===4)buildBodyGrid();
-  if(n===5)buildAuth(extra||S.authMode);
+  if(n===5)buildAuth(extra||'signup');
   if(n===7)buildSuccess();
   if(n===8)buildDash();
 }
 
-// ── GENDER ──
-function selGender(g,el){
+// GENDER
+function selG(g,el){
   S.gender=g;
   document.querySelectorAll('.g-card').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');
   document.getElementById('g-next').disabled=false;
 }
 
-// ── WEIGHT ──
+// WEIGHT
 function setUnit(u){
   S.unit=u;
-  document.getElementById('u-kg').classList.toggle('on',u==='kg');
-  document.getElementById('u-lb').classList.toggle('on',u==='lb');
+  ['kg','lb'].forEach(x=>document.getElementById('u-'+x).classList.toggle('on',x===u));
   wMin=u==='kg'?30:66; wMax=u==='kg'?200:440;
+  const sl=document.getElementById('wslider');
+  sl.min=wMin; sl.max=wMax; sl.value=u==='kg'?70:154;
   document.getElementById('r-min').textContent=wMin+' '+u;
   document.getElementById('r-max').textContent=wMax+' '+u;
   updW(u==='kg'?70:154);
@@ -488,45 +548,29 @@ function updW(v){
   v=Math.max(wMin,Math.min(wMax,Math.round(v)));
   S.weight=v;
   document.getElementById('wnum').textContent=v;
-  document.getElementById('wunit').textContent=S.unit;
-  const p=(v-wMin)/(wMax-wMin)*100;
-  document.getElementById('tfill').style.width=p+'%';
-  document.getElementById('thumb').style.left=p+'%';
+  document.getElementById('wunit').textContent=S.unit.toUpperCase();
+  document.getElementById('wslider').value=v;
   const kg=S.unit==='kg'?v:v/2.205;
   const bmi=kg/(1.70*1.70);
-  const cat=bmi<18.5?'Underweight':bmi<25?'Normal ✓':bmi<30?'Overweight':'Obese';
+  const cat=bmi<18.5?'Underweight':bmi<25?'Normal':bmi<30?'Overweight':'Obese';
   document.getElementById('bmi-v').textContent=bmi.toFixed(1)+' · '+cat;
 }
-function dragStart(e){
-  dragging=true;
-  moveD(e);
-  const mm=ev=>dragging&&moveD(ev);
-  const mu=()=>{dragging=false;document.removeEventListener('mousemove',mm);document.removeEventListener('touchmove',mm);};
-  document.addEventListener('mousemove',mm);
-  document.addEventListener('touchmove',mm,{passive:true});
-  document.addEventListener('mouseup',mu,{once:true});
-  document.addEventListener('touchend',mu,{once:true});
-}
-function moveD(e){
-  const t=document.getElementById('track');
-  const r=t.getBoundingClientRect();
-  const x=((e.touches?e.touches[0].clientX:e.clientX)-r.left)/r.width;
-  updW(wMin+(wMax-wMin)*Math.max(0,Math.min(1,x)));
-}
+function adjW(d){updW(S.weight+d);}
 
-// ── BODY TYPE ──
+// BODY TYPE
 const BT={
-  men:[{i:'🏋️',n:'Muscular',d:'Bulked up & strong'},{i:'🏃',n:'Athletic',d:'Lean, fast & fit'},{i:'🧍',n:'Slim',d:'Light & endurance'},{i:'💼',n:'Balanced',d:'Everyday fitness'},{i:'🦁',n:'Beast Mode',d:'Maximum mass & power'}],
-  women:[{i:'🧘‍♀️',n:'Toned',d:'Lean & defined'},{i:'🕺',n:'Athletic',d:'Strong & flexible'},{i:'🌸',n:'Slim',d:'Light & graceful'},{i:'💪',n:'Strong',d:'Powerful & confident'},{i:'⚖️',n:'Balanced',d:'Healthy wellness'}],
-  child:[{i:'⚽',n:'Sports Star',d:'Fast & competitive'},{i:'🤸',n:'Gymnast',d:'Flexible & coordinated'},{i:'🏊',n:'Swimmer',d:'Endurance & full-body'},{i:'🧗',n:'Explorer',d:'Active & adventurous'},{i:'🎯',n:'All-Rounder',d:'Try everything!'}]
+  men:[{n:'Lean & Athletic',d:'Low body fat, visible muscle definition'},{n:'Muscular & Built',d:'High muscle mass, strong physique'},{n:'Average Build',d:'Balanced proportions, moderate fitness'},{n:'Bulky & Strong',d:'Heavy muscle mass, powerlifter type'},{n:'Slim & Toned',d:'Light frame with defined muscles'}],
+  women:[{n:'Toned & Fit',d:'Lean, defined muscles & low body fat'},{n:'Athletic',d:'Strong, flexible & balanced'},{n:'Slim',d:'Light frame, graceful physique'},{n:'Curvy & Strong',d:'Strong curves with muscle definition'},{n:'Balanced',d:'Healthy overall wellness & energy'}],
+  child:[{n:'Sports Star',d:'Fast, agile & competitive'},{n:'Gymnast',d:'Flexible & well-coordinated'},{n:'Swimmer',d:'Endurance & full-body fitness'},{n:'Explorer',d:'Active outdoors & adventurous'},{n:'All-Rounder',d:'Try everything, stay active & healthy'}]
 };
 function buildBodyGrid(){
   const g=S.gender||'men';
-  document.getElementById('bt-title').textContent=g==='child'?'Your favourite activity':'Your goal body';
   const list=BT[g];
-  document.getElementById('body-grid').innerHTML=list.map((t,i)=>
-    `<div class="b-card${i===list.length-1&&list.length%2!==0?' full':''}" onclick="selBody('${t.n}',this)">
-      <div class="b-icon">${t.i}</div>
+  const grid=document.getElementById('body-grid');
+  grid.className='body-cards';
+  grid.innerHTML=list.map(t=>`
+    <div class="b-card" onclick="selBody('${t.n}',this)">
+      <div class="b-sel-circle"><div class="b-sel-dot"></div></div>
       <div class="b-name">${t.n}</div>
       <div class="b-desc">${t.d}</div>
     </div>`).join('');
@@ -538,50 +582,45 @@ function selBody(n,el){
   document.getElementById('bt-next').disabled=false;
 }
 
-// ── AUTH ──
+// AUTH
 function buildAuth(mode){
-  S.authMode=mode;
   const body=document.getElementById('auth-body');
   if(mode==='otp'){
+    document.getElementById('auth-heading').textContent='Verify';
+    document.getElementById('auth-heading2').textContent="It's You";
     body.innerHTML=`
-      <div class="s-title">Verify it's you</div>
-      <div class="s-sub">We sent a 6-digit code to<br><strong style="color:var(--accent)">${S.contact}</strong></div>
-      <div class="otp-hint" style="margin-top:8px;">Enter the 6-digit code</div>
+      <div class="otp-hint">We sent a 6-digit code to<br><strong style="color:var(--neon)">${S.contact}</strong></div>
       <div class="otp-row">${[0,1,2,3,4,5].map(i=>`<input class="ob" id="ob${i}" maxlength="1" type="tel" oninput="obIn(${i})" onkeydown="obKey(event,${i})">`).join('')}</div>
-      <div style="text-align:center;"><button class="resend" onclick="showToast('New code sent! ✓')">Resend code</button></div>
-      <div class="mt-a" style="padding-top:24px;">
-        <button class="btn btn-primary" onclick="doVerify()">Verify & Continue</button>
+      <button class="resend-btn" onclick="toast('New code sent!')">Resend code</button>
+      <div style="margin-top:24px;">
+        <button class="btn-neon" onclick="doVerify()">Verify & Continue <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M7 5l5 5-5 5"/></svg></button>
       </div>`;
     setTimeout(()=>document.getElementById('ob0').focus(),100);
-  } else if(mode==='password'){
+  } else if(mode==='password'||mode==='back'){
+    document.getElementById('auth-heading').textContent='Set your';
+    document.getElementById('auth-heading2').textContent='Password';
     body.innerHTML=`
-      <div class="s-title">Set password</div>
-      <div class="s-sub">Create a secure password for your next login.</div>
-      <div class="ig"><label class="il">Your full name</label><input class="inp" id="inp-name" type="text" placeholder="e.g. Omkar Shinde" value="${S.name}"></div>
-      <div class="ig"><label class="il">Password</label><input class="inp" id="inp-pw" type="password" placeholder="Min 8 characters"></div>
-      <div class="ig"><label class="il">Confirm password</label><input class="inp" id="inp-pw2" type="password" placeholder="Repeat password"></div>
-      <div class="mt-a" style="padding-top:12px;">
-        <button class="btn btn-primary" onclick="doPassword()">Create Account →</button>
-      </div>`;
+      <div class="field"><label class="field-lbl">Your full name</label><input class="field-inp" id="inp-name" type="text" placeholder="e.g. Omkar Shinde" value="${S.name}"></div>
+      <div class="field"><label class="field-lbl">Password</label><input class="field-inp" id="inp-pw" type="password" placeholder="Min 8 characters"></div>
+      <div class="field"><label class="field-lbl">Confirm password</label><input class="field-inp" id="inp-pw2" type="password" placeholder="Repeat password"></div>
+      <button class="btn-neon" onclick="doPassword()">Create Account <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M7 5l5 5-5 5"/></svg></button>`;
   } else {
     const isLogin=mode==='login';
+    document.getElementById('auth-heading').textContent=isLogin?'Welcome':'Create your';
+    document.getElementById('auth-heading2').textContent=isLogin?'Back':'Account';
     body.innerHTML=`
-      <div class="auth-tabs">
-        <button class="a-tab ${!isLogin?'on':''}" onclick="buildAuth('signup')">Sign up</button>
-        <button class="a-tab ${isLogin?'on':''}" onclick="buildAuth('login')">Log in</button>
+      <div class="auth-toggle">
+        <button class="a-tab ${!isLogin?'on':''}" onclick="buildAuth('signup')">Sign Up</button>
+        <button class="a-tab ${isLogin?'on':''}" onclick="buildAuth('login')">Login</button>
       </div>
-      <div class="ct-row">
-        <button class="ct on" id="ct-e" onclick="setCT('email')">📧 Email</button>
-        <button class="ct" id="ct-p" onclick="setCT('phone')">📱 Phone</button>
+      <div class="ct-toggle">
+        <button class="ct-btn on" id="ct-e" onclick="setCT('email')">✉ Email</button>
+        <button class="ct-btn" id="ct-p" onclick="setCT('phone')">📱 Phone</button>
       </div>
-      <div class="ig">
-        <label class="il" id="ct-lbl">Email address</label>
-        <input class="inp" id="inp-ct" type="email" placeholder="your@email.com">
-      </div>
-      <div class="mt-a" style="padding-top:8px;display:flex;flex-direction:column;gap:12px;">
-        <button class="btn btn-primary" onclick="doSendOtp()">Send OTP Code →</button>
-        <div style="text-align:center;font-size:12px;color:var(--muted2);">By continuing you agree to our <span style="color:var(--accent);cursor:pointer">Terms</span> & <span style="color:var(--accent);cursor:pointer">Privacy Policy</span></div>
-      </div>`;
+      <div class="field"><label class="field-lbl">Your name</label><input class="field-inp" id="inp-name2" type="text" placeholder="Enter your full name"></div>
+      <div class="field"><label class="field-lbl" id="ct-lbl">Email address</label><input class="field-inp" id="inp-ct" type="email" placeholder="your@email.com"></div>
+      <button class="btn-neon" onclick="doSendOtp()">Send OTP <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M7 5l5 5-5 5"/></svg></button>
+      <div class="terms-note">By continuing you agree to our <span>Terms of Service</span> & <span>Privacy Policy</span></div>`;
   }
 }
 function setCT(t){
@@ -594,50 +633,40 @@ function setCT(t){
   i.placeholder=t==='email'?'your@email.com':'+91 98765 43210';
 }
 function doSendOtp(){
-  const v=document.getElementById('inp-ct').value.trim();
-  if(!v){showToast('Please enter your '+S.contactType);return;}
-  S.contact=v;
-  showToast('OTP sent to '+v+' ✓');
+  const nm=document.getElementById('inp-name2');
+  const ct=document.getElementById('inp-ct');
+  if(nm&&!nm.value.trim()){toast('Please enter your name',true);return;}
+  if(nm)S.name=nm.value.trim();
+  if(!ct.value.trim()){toast('Please enter your '+S.contactType,true);return;}
+  S.contact=ct.value.trim();
+  toast('OTP sent to '+S.contact+' ✓');
   setTimeout(()=>buildAuth('otp'),700);
 }
 function obIn(i){const v=document.getElementById('ob'+i).value;if(v&&i<5)document.getElementById('ob'+(i+1)).focus();}
 function obKey(e,i){if(e.key==='Backspace'&&!document.getElementById('ob'+i).value&&i>0)document.getElementById('ob'+(i-1)).focus();}
 function doVerify(){
   const code=[0,1,2,3,4,5].map(i=>document.getElementById('ob'+i).value).join('');
-  if(code.length<6){showToast('Please enter all 6 digits');return;}
-  showToast('Verified successfully! ✓');
+  if(code.length<6){toast('Enter all 6 digits',true);return;}
+  toast('Verified! ✓');
   setTimeout(()=>buildAuth('password'),700);
 }
 function doPassword(){
   const name=document.getElementById('inp-name').value.trim();
   const p1=document.getElementById('inp-pw').value;
   const p2=document.getElementById('inp-pw2').value;
-  if(!name){showToast('Please enter your name');return;}
-  if(p1.length<8){showToast('Password needs 8+ characters');return;}
-  if(p1!==p2){showToast("Passwords don't match");return;}
+  if(!name){toast('Enter your name',true);return;}
+  if(p1.length<8){toast('Password needs 8+ characters',true);return;}
+  if(p1!==p2){toast("Passwords don't match",true);return;}
   S.name=name;
-  sendUserData();
-  showToast('Account created! 🎉');
+  sendData();
+  toast('Account created! 🎉');
   setTimeout(()=>go(6),800);
 }
 
-// ── SEND USER DATA TO EMAIL ──
-async function sendUserData(){
-  // Using EmailJS — replace with your EmailJS public key, service ID & template ID
-  // Sign up free at emailjs.com
-  const payload={
-    to_email:'YOUR_EMAIL@gmail.com', // ← Replace with your email
-    from_name:'Fitness World App',
-    subject:'New User Signup!',
-    message:`New user registered!\n\nName: ${S.name}\nContact: ${S.contact} (${S.contactType})\nGender: ${S.gender}\nWeight: ${S.weight} ${S.unit}\nGoal: ${S.bodyType}\nTime: ${new Date().toLocaleString()}`
-  };
-  // Uncomment after adding EmailJS:
-  // emailjs.send('YOUR_SERVICE_ID','YOUR_TEMPLATE_ID',payload,'YOUR_PUBLIC_KEY');
-  console.log('User signup data:',payload);
-}
-
-// ── PLAN ──
+// PLAN
+let currentPlan='free';
 function selPlan(p,el){
+  currentPlan=p;
   ['free','weekly','monthly','yearly'].forEach(x=>{
     const c=document.getElementById('pc-'+x);
     const r=document.getElementById('pr-'+x);
@@ -647,98 +676,94 @@ function selPlan(p,el){
   el.classList.add('sel');
   const r=document.getElementById('pr-'+p);
   if(r){r.classList.add('sel');r.innerHTML='<div class="p-radio-dot"></div>';}
-  S.plan=p;
+  document.getElementById('pay-btn').textContent=p==='free'?'Continue Free →':'Pay & Start →';
 }
-function startJourney(){
-  if(S.plan === 'free'){
-    showToast('Starting free plan with ads! 📺');
-    setTimeout(()=>go(7),800);
-  } else {
-    showToast('Redirecting to Razorpay... 💳');
-    loadRazorpay(); // ✅ CALL IT
+
+// ✅ PAYMENT — FIXED
+function handlePayment(){
+  if(currentPlan==='free'){go(7);return;}
+  const prices={weekly:2900,monthly:9900,yearly:49900};
+  const labels={weekly:'Weekly Plan — ₹29',monthly:'Monthly Plan — ₹99',yearly:'Yearly Plan — ₹499'};
+  document.getElementById('pay-ov').classList.add('show');
+  const opts={
+    key:RAZORPAY_KEY,
+    amount:prices[currentPlan],
+    currency:'INR',
+    name:'Fitness World',
+    description:labels[currentPlan],
+    prefill:{name:S.name,email:S.contactType==='email'?S.contact:'',contact:S.contactType==='phone'?S.contact:''},
+    theme:{color:'#c8f400'},
+    modal:{ondismiss:()=>{document.getElementById('pay-ov').classList.remove('show');toast('Payment cancelled',true);}},
+    handler:function(r){
+      document.getElementById('pay-ov').classList.remove('show');
+      S.payId=r.razorpay_payment_id;
+      sendData();
+      toast('Payment successful! ✓');
+      setTimeout(()=>go(7),800);
+    }
+  };
+  try{
+    document.getElementById('pay-ov').classList.remove('show');
+    const rzp=new Razorpay(opts);
+    rzp.on('payment.failed',r=>{document.getElementById('pay-ov').classList.remove('show');toast('Payment failed: '+r.error.description,true);});
+    rzp.open();
+  }catch(e){
+    document.getElementById('pay-ov').classList.remove('show');
+    toast('Razorpay error — check your Key ID',true);
+    console.error(e);
   }
 }
 
-// Razorpay integration (uncomment after getting keys from razorpay.com)
-/*
-function loadRazorpay(){
-  const prices = {
-    weekly: 2900,   // ₹89
-    monthly: 9900,  // ₹299
-    yearly: 49900   // ₹999
-  };
-
-  const options = {
-    key: rzp_test_SblCWaew7Tn1Fw", // ⚠️ PUT YOUR REAL KEY
-    amount: prices[S.plan],
-    currency: "INR",
-    name: "Fitness World",
-    description: S.plan + " subscription",
-    prefill: {
-      name: S.name,
-      contact: S.contact
-    },
-
-    handler: function (response) {
-      showToast('Payment successful! ✅');
-      go(7); // ✅ ONLY HERE SUCCESS HAPPENS
-    },
-
-    modal: {
-      ondismiss: function () {
-        showToast('Payment cancelled ❌');
-      }
-    }
-  };
-
-  const rzp = new Razorpay(options);
-  rzp.open();
+// DATA
+function sendData(){
+  console.log('📧 New signup:',{name:S.name,contact:S.contact,gender:S.gender,weight:S.weight+S.unit,goal:S.bodyType,plan:currentPlan,payId:S.payId||'free',time:new Date().toLocaleString('en-IN')});
+  // Add EmailJS here after setup at emailjs.com
 }
-*/
 
-// ── SUCCESS ──
+// SUCCESS
 function buildSuccess(){
   const pn={free:'Free (with Ads)',weekly:'Weekly · ₹29/wk',monthly:'Monthly · ₹99/mo',yearly:'Yearly · ₹499/yr'};
-  document.getElementById('s7-name').textContent=S.name||'champ';
-  document.getElementById('s7-summary').innerHTML=`
-    <div class="sc-row"><span class="sc-label">Name</span><span class="sc-val">${S.name||'—'}</span></div>
-    <div class="sc-row"><span class="sc-label">Contact</span><span class="sc-val">${S.contact||'—'}</span></div>
-    <div class="sc-row"><span class="sc-label">Profile</span><span class="sc-val">${S.gender==='men'?'♂ Men':S.gender==='women'?'♀ Women':'⚡ Child'} · ${S.weight}${S.unit}</span></div>
-    <div class="sc-row"><span class="sc-label">Goal</span><span class="sc-val">${S.bodyType||'—'}</span></div>
-    <div class="sc-row"><span class="sc-label">Plan</span><span class="sc-val">${pn[S.plan]||'Free'}</span></div>`;
+  document.getElementById('s7-name').textContent=S.name||'Champ';
+  document.getElementById('s7-sum').innerHTML=`
+    <div class="sum-row"><span class="sum-lbl">Name</span><span class="sum-val">${S.name||'—'}</span></div>
+    <div class="sum-row"><span class="sum-lbl">Contact</span><span class="sum-val">${S.contact||'—'}</span></div>
+    <div class="sum-row"><span class="sum-lbl">Profile</span><span class="sum-val">${S.gender==='men'?'Male':S.gender==='women'?'Female':'Child'} · ${S.weight}${S.unit}</span></div>
+    <div class="sum-row"><span class="sum-lbl">Goal</span><span class="sum-val neon">${S.bodyType||'—'}</span></div>
+    <div class="sum-row"><span class="sum-lbl">Plan</span><span class="sum-val neon">${pn[currentPlan]}</span></div>
+    ${S.payId?`<div class="sum-row"><span class="sum-lbl">Payment</span><span class="sum-val" style="font-size:11px;">${S.payId}</span></div>`:''}`;
 }
 
-// ── DASHBOARD ──
+// DASHBOARD
 const WO={
-  men:[{i:'🏋️',n:'Upper Body Strength',m:'35 min · Intermediate',bg:'rgba(79,142,247,0.15)',t:'Today',tc:'#4f8ef7'},{i:'🏃',n:'HIIT Cardio Blast',m:'20 min · Advanced',bg:'rgba(0,229,176,0.12)',t:'Later',tc:'#00e5b0'}],
-  women:[{i:'🧘‍♀️',n:'Morning Yoga Flow',m:'30 min · Beginner',bg:'rgba(168,85,247,0.15)',t:'Today',tc:'#a855f7'},{i:'🚶‍♀️',n:'Power Walk & Stretch',m:'25 min · Easy',bg:'rgba(0,229,176,0.12)',t:'Later',tc:'#00e5b0'}],
-  child:[{i:'⚽',n:'Fun Sports Circuit',m:'20 min · Easy',bg:'rgba(255,200,55,0.15)',t:'Today',tc:'#ffc837'},{i:'🤸',n:'Gymnastic Basics',m:'15 min · Easy',bg:'rgba(0,229,176,0.12)',t:'Later',tc:'#00e5b0'}]
+  men:[{i:'🏋️',n:'Upper Body Strength',m:'35 min · Intermediate',today:true},{i:'🏃',n:'HIIT Cardio Blast',m:'20 min · Advanced',today:false}],
+  women:[{i:'🧘‍♀️',n:'Morning Yoga Flow',m:'30 min · Beginner',today:true},{i:'🚶‍♀️',n:'Power Walk & Stretch',m:'25 min · Easy',today:false}],
+  child:[{i:'⚽',n:'Fun Sports Circuit',m:'20 min · Easy',today:true},{i:'🤸',n:'Gymnastics Basics',m:'15 min · Easy',today:false}]
 };
-const AI_MSG={men:'Tap for your strength plan personalised to your body type.',women:'Tap for your yoga & wellness plan crafted just for you.',child:'Tap for a fun activity plan made especially for kids!'};
 function buildDash(){
   const g=S.gender||'men';
   document.getElementById('d-greet').textContent='Good morning, '+(S.name||'Champ')+' 👋';
-  document.getElementById('d-sub').textContent=g==='child'?'Time to play and move! 🎉':'Ready for today\'s session? 💪';
+  document.getElementById('d-sub').textContent=g==='child'?'Time to play and move! 🎉':'Ready to crush it today? 💪';
   document.getElementById('d-av').textContent=(S.name||'FW').substring(0,2).toUpperCase();
-  document.getElementById('d-ai-msg').textContent=AI_MSG[g];
-  const wl=document.getElementById('d-workouts');
-  wl.innerHTML=(WO[g]||WO.men).map(w=>`
-    <div class="workout-item">
-      <div class="wi-thumb" style="background:${w.bg}">${w.i}</div>
-      <div class="wi-info"><div class="wn">${w.n}</div><div class="wm">${w.m}</div></div>
-      <div class="wi-tag" style="background:${w.bg};color:${w.tc}">${w.t}</div>
+  document.getElementById('d-ai').textContent=g==='child'?'Fun activity plan made just for kids!':g==='women'?'Personalised wellness plan ready for you.':'Your strength plan based on your body type.';
+  document.getElementById('d-workouts').innerHTML=(WO[g]||WO.men).map(w=>`
+    <div class="wo-item">
+      <div class="wo-thumb">${w.i}</div>
+      <div><div class="wo-name">${w.n}</div><div class="wo-meta">${w.m}</div></div>
+      <div class="wo-tag ${w.today?'tag-today':'tag-later'}">${w.today?'Today':'Later'}</div>
     </div>`).join('');
 }
 
-// ── TOAST ──
-function showToast(msg){
+function toast(msg,isErr=false){
   const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);
+  t.textContent=msg;
+  t.className='toast'+(isErr?' err':'')+' show';
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>t.classList.remove('show'),3000);
 }
 
 // Init
 updW(70);
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+buildDots(2,4,1);
+</script>
 </body>
 </html>
